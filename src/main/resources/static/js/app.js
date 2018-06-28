@@ -79,6 +79,7 @@ var Employee = React.createClass({
         return {display: true };
     },
     handleDelete() {
+        this.setState({ delete: true });
         var self = this;
         $.ajax({
             url: self.props.employee._links.self.href,
@@ -96,31 +97,41 @@ var Employee = React.createClass({
             }
         });
 
-        ReactDOM.render(
-            <App  /> , document.getElementById("main")
-        );
+        // ReactDOM.render(
+        //     <App  /> , document.getElementById("main")
+        // );
     },
     render: function() {
-        return (
-            <tr>
-                <td>{this.props.employee.firstName}</td>
-                <td>{this.props.employee.surname}</td>
-                <td>{this.props.employee.accountNumber}</td>
-                <td>
-                    <button className="btn btn-info" onClick={this.handleDelete}>Delete</button>
-                </td>
-            </tr>);
+        console.log("employee render");
+        if(!this.state.delete){
+            return (
+
+                <tr >
+                    <td>{this.props.employee.firstName}</td>
+                    <td>{this.props.employee.surname}</td>
+                    <td>{this.props.employee.accountNumber}</td>
+                    <td>
+                        <button className="btn btn-info" onClick={this.handleDelete}>Delete</button>
+                    </td>
+                </tr>);
+        }else{
+            return null;
+        }
+
     }
 
 });
 
 var EmployeeTable = React.createClass({
+
     render: function() {
+        console.log("table render")
         var rows = [];
         this.props.employees.forEach(function(employee) {
             rows.push(<Employee employee={employee} />);
         });
         return (
+
             <div className="container">
             <table className="table table-striped">
             <thead>
@@ -178,8 +189,11 @@ var App = React.createClass({
             url: "http://localhost:8080/api/employees"
         }).then(function (data) {
             self.setState({employees: data._embedded.employees});
+
         });
-        console.log("app.loademployees")
+        console.log("app.loademployees");
+
+
     },
 
     getInitialState: function () {
@@ -189,6 +203,10 @@ var App = React.createClass({
     componentDidMount: function () {
         this.loadEmployeesFromServer();
     },
+    componentWillMount : function (){
+        this.loadEmployeesFromServer();
+    },
+
     statics: {
         update: function () {
             console.log("bacon!!!!");
