@@ -1,0 +1,7 @@
+package web.app.accounts;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface EmployeeRepository extends CrudRepository<Employee, Long> {
+
+}
