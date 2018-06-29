@@ -24,38 +24,89 @@ var NavBar = React.createClass({
 });
 
 var AddForm = React.createClass({
+    getInitialState: function() {
+        return {}
+    },
+
+    nameChange: function(e) {
+        console.log("state of name changed");
+        this.setState({
+            firstName: e.target.value
+        })
+    },
+    surnameChange: function(e) {
+        this.setState({
+            surname: e.target.value
+        })
+    },
+    accountNumberChange: function(e) {
+        this.setState({
+            accountNumber: parseInt(e.target.value)
+        })
+    },
 
 
-    handleAdd() {
-        $.post("",
-            {
-                firstName: "Donald Duck",
-                surname: "Duckburg",
-                accountNumber: 1000,
+    submit: function (e){
+        var self
+
+        e.preventDefault()
+        self = this
+
+        console.log(this.state);
+
+        var data = {
+            "firstName": this.state.firstName,
+           "surname": this.state.surname,
+            "accountNumber": this.state.accountNumber
+        }
+        var jsonData = JSON.stringify(data);
+        console.log(jsonData);
+        // Submit form via jQuery/AJAX
+
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": "/addAccount",
+            "method": "POST",
+            "headers": {
+                "content-type": "application/json",
+                "cache-control": "no-cache",
+                "postman-token": "7583589c-5a8a-9fa1-a6c1-cce43c23293d"
             },
-            function(data, status){
-                alert("Data: " + data + "\nStatus: " + status);
+            "processData": false,
+            "data": jsonData
+        }
+
+        $.ajax(settings)
+            .done(function(data) {
+                console.log(response)
+            })
+            .fail(function(jqXhr) {
+                alert(this.url);
+                console.log("data : " + data );
+                console.log('failed to register');
             });
+
     },
 
     render: function() {
         return (
 
             <div id="main" className="container">
-            <form>
+            <form onSubmit={this.submit}>
             <div className="form-group">
             <label for="exampleInputEmail1">First Name</label>
-        <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" />
+        <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" onChange={this.nameChange} val={this.state.firstName} />
             </div>
             <div className="form-group">
             <label for="exampleInputPassword1">Surname</label>
-            <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" />
+            <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" onChange={this.surnameChange} val={this.state.surname} />
             </div>
             <div className="form-group">
             <label for="exampleInputPassword1">Account Number</label>
-        <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number" />
+        <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number" onChange={this.accountNumberChange} val={this.state.accountNumber} />
             </div>
-            <button type="submit" className="btn btn-primary" onClick={this.handleAdd} >Add Account</button>
+            <button type="submit" className="btn btn-primary"  >Add Account</button>
             </form>
             </div>
     );
