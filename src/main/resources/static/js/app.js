@@ -1,3 +1,48 @@
+
+var EditModal = React.createClass({
+    getInitialState: function() {
+        return {
+            firstName: this.props.employee.firstName,
+            surname: this.props.employee.surname,
+            accountNumber: this.props.employee.accountNumber
+        }
+    },
+
+    componentWillMount: function() {
+        const id = "modal-" + this.props.employee.id;
+        this.setState({id: id, dataTarget : "#" + id});
+
+    },
+    render: function() {
+        return (
+            <div>
+                <button type="button" className="btn btn-primary" data-toggle="modal" data-target={this.state.dataTarget} onClick={this.updateProps}>
+                    Edit
+                </button>
+
+                <div className="modal fade" id={this.state.id} tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
+                    <div className="modal-dialog modal-dialog-centered" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="false">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <EditForm employee={this.props.employee} onClick={this.props.onClick}/>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal" >Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
 var NavBar = React.createClass({
     handleAdd() {
         ReactDOM.render(
@@ -20,6 +65,116 @@ var NavBar = React.createClass({
         </div>
         </nav>
     );
+    }
+});
+
+var EditForm = React.createClass({
+
+    getInitialState: function() {
+        return {
+            firstName: this.props.employee.firstName,
+            surname: this.props.employee.surname,
+            accountNumber: this.props.employee.accountNumber
+        }
+    },
+
+    updateState: function(){
+      this.state.firstName = this.props.employee.firstName;
+      this.state.surname = this.props.employee.surname;
+      this.state.accountNumber = this.props.employee.accountNumber
+    },
+
+    reRenderParent: function() {
+        console.log("render props name : " + this.props.employee.firstName);
+        if (typeof this.props.onClick === 'function') {
+            this.props.onClick(this.props.employee.firstName, this.props.employee.surname, this.props.employee.accountNumber);
+        }
+    },
+
+    nameChange: function(e) {
+        this.setState({
+            firstName: e.target.value
+        })
+    },
+    surnameChange: function(e) {
+        this.setState({
+            surname: e.target.value
+        })
+    },
+    accountNumberChange: function(e) {
+        this.setState({
+            accountNumber: parseInt(e.target.value)
+        })
+    },
+
+
+    submit: function (e){
+        var self
+
+        e.preventDefault();
+        e.persist();
+        self = this
+
+
+        var data = {
+            "firstName": this.state.firstName,
+            "surname": this.state.surname,
+            "accountNumber": this.state.accountNumber
+        }
+
+        if(typeof this.props.employee.id !== "undefined") data.id = this.props.employee.id;
+
+        var jsonData = JSON.stringify(data);
+        console.log(jsonData);
+        // Submit form via jQuery/AJAX
+
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "method": "POST",
+            "url": "demo/add",
+            "headers": {
+                "content-type": "application/json",
+                "cache-control": "no-cache",
+                "postman-token": "7583589c-5a8a-9fa1-a6c1-cce43c23293d"
+            },
+            "processData": false,
+            "data": jsonData
+        }
+
+        $.ajax(settings)
+            .done(function(data) {
+            })
+            .fail(function(jqXhr) {
+                alert(this.url);
+                console.log("data : " + data );
+                console.log('failed to register');
+            });
+
+    },
+
+    render: function() {
+        console.log("rendering .. :  state = " + this.state.employee + " props = " + this.props.employee );
+        return (
+
+            <div id="main" className="container">
+                <form onSubmit={this.submit}>
+                    <div className="form-group">
+                        <label for="exampleInputEmail1">First Name</label>
+                        <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" onChange={this.nameChange} val={this.state.firstName} defaultValue={this.props.employee.firstName}/>
+                    </div>
+                    <div className="form-group">
+                        <label for="exampleInputPassword1">Surname</label>
+                        <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" onChange={this.surnameChange} val={this.state.surname} defaultValue={this.props.employee.surname}/>
+                    </div>
+                    <div className="form-group">
+                        <label for="exampleInputPassword1">Account Number</label>
+                        <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number"  onChange={this.accountNumberChange} val={this.state.accountNumber} defaultValue={this.props.employee.accountNumber}/>
+                    </div>
+                    <button type="submit" className="btn btn-primary"  reRenderParent={this.props.onClick}>Edit Account</button>
+                </form>
+            </div>
+        );
     }
 });
 
@@ -49,8 +204,9 @@ var AddForm = React.createClass({
     submit: function (e){
         var self
 
-        e.preventDefault()
-        self = this
+        e.preventDefault();
+        e.persist();
+        self = this;
 
         console.log(this.state);
 
@@ -66,7 +222,7 @@ var AddForm = React.createClass({
         var settings = {
             "async": true,
             "crossDomain": true,
-            "url": "/addAccount",
+            "url": "demo/add",
             "method": "POST",
             "headers": {
                 "content-type": "application/json",
@@ -79,7 +235,9 @@ var AddForm = React.createClass({
 
         $.ajax(settings)
             .done(function(data) {
-                console.log(response)
+                console.log(self.state);
+                e.target.reset();
+                console.log(self.state);
             })
             .fail(function(jqXhr) {
                 alert(this.url);
@@ -109,7 +267,7 @@ var AddForm = React.createClass({
             <button type="submit" className="btn btn-primary"  >Add Account</button>
             </form>
             </div>
-    );
+        );
     }
 });
 
@@ -124,47 +282,60 @@ var accountsTable = React.createClass({
 
     }
 });
+
+
 var Employee = React.createClass({
 
     getInitialState: function() {
         return {display: true };
     },
+
+
     handleDelete() {
         this.setState({ delete: true });
         var self = this;
         $.ajax({
-            url: self.props.employee._links.self.href,
+            "url": "http://localhost:8080/demo/delete",
             type: 'DELETE',
+            data: JSON.stringify(self.props.employee),
+            "headers": {
+                "content-type": "application/json",
+                "cache-control": "no-cache",
+                "postman-token": "c7bb89b4-2b6c-3cdb-cd22-86fdba25c43c"
+            },
+            "processData": false,
             success: function(result) {
                 // self.setState({employees: data._embedded.employees});
-                $.ajax({
-                    url: "http://localhost:8080/api/employees"
-                }).then(function (data) {
-                    self.setState({employees: data._embedded.employees});
-                });
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 toastr.error(xhr.responseJSON.message);
             }
         });
 
-        // ReactDOM.render(
-        //     <App  /> , document.getElementById("main")
-        // );
+
+    },
+    reRender: function(firstName , surname, accountNumber){
+        console.log("reRender called");
+        console.log(firstName);
+        this.props.employee.surname = surname;
+        this.props.employee.firstName = firstName;
+        this.props.employee.accountNumber = accountNumber;
+        console.log("firstname : "+ this.props.employee.firstName);
+        this.forceUpdate();
     },
     render: function() {
-        console.log("employee render");
+        console.log("rendering - -- - - - employee table-----");
         if(!this.state.delete){
             return (
+                    <tr >
+                        <td>{this.props.employee.firstName}</td>
+                        <td>{this.props.employee.surname}</td>
+                        <td>{this.props.employee.accountNumber}</td>
+                        <td></td>
+                        <td><EditModal employee={this.props.employee} onClick={this.reRender}/></td>
+                        <td><button className="btn btn-info btn-danger" onClick={this.handleDelete}>Delete</button></td>
+                    </tr>)
 
-                <tr >
-                    <td>{this.props.employee.firstName}</td>
-                    <td>{this.props.employee.surname}</td>
-                    <td>{this.props.employee.accountNumber}</td>
-                    <td>
-                        <button className="btn btn-info" onClick={this.handleDelete}>Delete</button>
-                    </td>
-                </tr>);
         }else{
             return null;
         }
@@ -175,8 +346,8 @@ var Employee = React.createClass({
 
 var EmployeeTable = React.createClass({
 
+
     render: function() {
-        console.log("table render")
         var rows = [];
         this.props.employees.forEach(function(employee) {
             rows.push(<Employee employee={employee} />);
@@ -187,9 +358,9 @@ var EmployeeTable = React.createClass({
             <table className="table table-striped">
             <thead>
             <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Years</th>
+            <th>First Name</th>
+            <th>Surname</th>
+            <th>Account Number</th>
             </tr>
             </thead>
             <tbody>{rows}</tbody>
@@ -200,23 +371,18 @@ var EmployeeTable = React.createClass({
 });
 
 var Body = React.createClass({
+
+
+
     render:  function(){
         return (
             <div id="body">
-            <NavBar />
-            <AddForm />
+                <NavBar />
+                <AddForm />
             </div>);
     }
 })
 
-
-var EMPLOYEES = [
-    {firstName: 'Joe', surname: 'Biden', accountNumber: 5},
-    {firstName: 'Joe', surname: 'Biden', accountNumber: 5},
-    {firstName: 'Joe', surname: 'Biden', accountNumber: 5},
-    {firstName: 'Joe', surname: 'Biden', accountNumber: 5},
-
-];
 
 ReactDOM.render(
 //<EmployeeTable employees={EMPLOYEES} />, document.getElementById('root')
@@ -226,7 +392,6 @@ ReactDOM.render(
 
 function handleClick(e){
     e.preventDefault();
-    console.log("this button has been pressed");
     ReactDOM.render(
     <App />, document.getElementById("main")
 );
@@ -237,13 +402,10 @@ var App = React.createClass({
     loadEmployeesFromServer: function () {
         var self = this;
         $.ajax({
-            url: "http://localhost:8080/api/employees"
+            url: "http://localhost:8080/demo/all"
         }).then(function (data) {
-            self.setState({employees: data._embedded.employees});
-
+            self.setState({employees: data});
         });
-        console.log("app.loademployees");
-
 
     },
 
@@ -260,15 +422,12 @@ var App = React.createClass({
 
     statics: {
         update: function () {
-            console.log("bacon!!!!");
             self.loadEmployeesFromServer();
             this.render();
         }
     },
     render() {
-        //this.loadEmployeesFromServer();
-        console.log("app.render");
-        return ( <EmployeeTable employees={this.state.employees}/> );
+        return ( <EmployeeTable employees={this.state.employees} handler = {this.handler}/> );
     }
 });
 
