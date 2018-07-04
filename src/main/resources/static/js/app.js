@@ -8,6 +8,20 @@ var EditModal = React.createClass({
         }
     },
 
+    renderTable: function(){
+        var self = this;
+        $.ajax({
+            url: "http://localhost:8080/demo/all"
+        }).then(function (data) {
+            self.setState({employees: data});
+            ReactDOM.render(
+                <EmployeeTable employees={self.state.employees}/>, document.getElementById("main")
+            );
+
+        });
+
+    },
+
     componentWillMount: function() {
         const id = "modal-" + this.props.employee.id;
         this.setState({id: id, dataTarget : "#" + id});
@@ -33,7 +47,7 @@ var EditModal = React.createClass({
                                 <EditForm employee={this.props.employee} onClick={this.props.onClick}/>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" data-dismiss="modal" >Close</button>
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal"  onClick={this.renderTable} >Close</button>
                             </div>
                         </div>
                     </div>
@@ -171,7 +185,7 @@ var EditForm = React.createClass({
                         <label for="exampleInputPassword1">Account Number</label>
                         <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number"  onChange={this.accountNumberChange} val={this.state.accountNumber} defaultValue={this.props.employee.accountNumber}/>
                     </div>
-                    <button type="submit" className="btn btn-primary"  reRenderParent={this.props.onClick}>Edit Account</button>
+                    <button type="submit" className="btn btn-primary"  reRenderParent={this.props.onClick} >Edit Account</button>
                 </form>
             </div>
         );
