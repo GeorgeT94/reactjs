@@ -12,7 +12,7 @@ var NavBar = React.createClass({
     },
     render: function() {
         return(
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <a className="navbar-brand" href="#">AccountApp</a>
                 <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
@@ -161,10 +161,9 @@ var EditForm = React.createClass({
     },
 
     render: function() {
-        console.log("rendering .. :  state = " + this.state.employee + " props = " + this.props.employee );
         return (
 
-            <div id="main" className="container">
+            <div className="container">
                 <form onSubmit={this.submit}>
                     <div className="form-group">
                         <label for="exampleInputEmail1">First Name</label>
@@ -185,23 +184,93 @@ var EditForm = React.createClass({
     }
 });
 
+var FormErrors = React.createClass({
+   render: function({formErrors}){
+       return(
+
+       <div className='formErrors'>
+           {Object.keys(formErrors).map((fieldName, i) => {
+               if(formErrors[fieldName].length > 0){
+                   return (
+                       <p key={i}>{fieldName} {formErrors[fieldName]}</p>
+                   )
+               } else {
+                   return '';
+               }
+           })}
+       </div>);
+   }
+});
+
 var AddForm = React.createClass({
     getInitialState: function() {
-        return {}
+        return {
+            formErrors: {firstName: '', surname: '', accountNumber:''},
+            firstNameValid : false,
+            surnameValid : false,
+            accountNumberValid : false,
+            formValid: false
+        }
+    },
+
+    handleUserInput (e) {
+        const name = e.target.name;
+        const value = e.target.value;
+        this.setState({[name]: value},
+            () => { this.validateField(name, value) });
+    },
+
+    validateField(fieldName, value) {
+        let fieldValidationErrors = this.state.formErrors;
+        let firstNameValid = this.state.firstNameValid;
+        let surnameValid = this.state.surnameValid;
+        let accountNumberValid = this.state.accountNumberValid;
+
+        switch(fieldName) {
+            case 'firstName':
+                firstNameValid = value.length >= 1;
+                fieldValidationErrors.firstName = firstNameValid ? '' : ' is empty';
+                break;
+            case 'surname':
+                surnameValid = value.length >= 1
+                fieldValidationErrors.surname = surnameValid ? '': ' is empty';
+                break;
+            case 'accountNumber':
+                accountNumberValid = !isNaN(value);
+                fieldValidationErrors.accountNumber = accountNumberValid ? '': ' is not an integer';
+                break;
+            default:
+                break;
+        }
+        this.setState({formErrors: fieldValidationErrors,
+            firstNameValid: firstNameValid,
+            surnameValid: surnameValid,
+            accountNumberValid: accountNumberValid
+        }, this.validateForm);
+    },
+
+    validateForm() {
+        this.setState({formValid: this.state.firstNameValid && this.state.surnameValid && this.state.accountNumberValid});
+    },
+    errorClass(error) {
+        return(error.length === 0 ? '' : 'has-error');
     },
 
     nameChange: function(e) {
+        this.handleUserInput(e);
         console.log("state of name changed");
         this.setState({
             firstName: e.target.value
         })
     },
     surnameChange: function(e) {
+        this.handleUserInput(e);
         this.setState({
             surname: e.target.value
         })
     },
     accountNumberChange: function(e) {
+        this.handleUserInput(e);
         this.setState({
             accountNumber: parseInt(e.target.value)
         })
@@ -255,23 +324,29 @@ var AddForm = React.createClass({
     },
 
     render: function() {
+        console.log("firstname valid : "  + this.state.firstNameValid);
+        console.log("surname valid : "  + this.state.surnameValid);
+        console.log("accountnumber valid : "  + this.state.accountNumberValid);
+
+        console.log("form valid : "  + this.state.formValid);
+        console.log("form errors : " + this.state.formErrors.firstNameValid);
         return (
 
             <div id="main" className="container">
             <form onSubmit={this.submit}>
-            <div className="form-group">
+            <div className={`form-group ${this.errorClass(this.state.formErrors.fieldval)}`}>
             <label for="exampleInputEmail1">First Name</label>
-        <input type="text" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" onChange={this.nameChange} val={this.state.firstName} />
+        <input type="text" name="firstName" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" onChange={this.nameChange} val={this.state.firstName} />
             </div>
             <div className="form-group">
             <label for="exampleInputPassword1">Surname</label>
-            <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" onChange={this.surnameChange} val={this.state.surname} />
+            <input type="text" name="surname" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" onChange={this.surnameChange}  val={this.state.surname} />
             </div>
             <div className="form-group">
             <label for="exampleInputPassword1">Account Number</label>
-        <input type="text" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number" onChange={this.accountNumberChange} val={this.state.accountNumber} />
+        <input type="text" name="accountNumber" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number" onChange={this.accountNumberChange} val={this.state.accountNumber} />
             </div>
-            <button type="submit" className="btn btn-primary"  >Add Account</button>
+            <button type="submit" className="btn btn-primary"   disabled={!this.state.formValid} >Add Account</button>
             </form>
             </div>
         );
