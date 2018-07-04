@@ -1,3 +1,33 @@
+var NavBar = React.createClass({
+    handleAdd() {
+        ReactDOM.render(
+            <AddForm />, document.getElementById("main")
+        );
+    },
+
+    handleClick(e){
+        ReactDOM.render(
+            <App />, document.getElementById("main")
+        );
+    },
+    render: function() {
+        return(
+            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                <a className="navbar-brand" href="#">AccountApp</a>
+                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div className="navbar-nav">
+                        <a className="nav-item nav-link active" href="#">DashBoard <span className="sr-only">(current)</span></a>
+                        <a className="nav-item nav-link" href="#" onClick={this.handleAdd}>Add Account</a>
+                        <a className="nav-item nav-link" href="#"  onClick={this.handleClick}>Get Accounts</a>
+                    </div>
+                </div>
+            </nav>
+        );
+    }
+});
 
 var EditModal = React.createClass({
     getInitialState: function() {
@@ -57,30 +87,7 @@ var EditModal = React.createClass({
     }
 });
 
-var NavBar = React.createClass({
-    handleAdd() {
-        ReactDOM.render(
-            <AddForm />, document.getElementById("main")
-        );
-    },
-    render: function() {
-        return(
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <a className="navbar-brand" href="#">AccountApp</a>
-            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div className="navbar-nav">
-            <a className="nav-item nav-link active" href="#">DashBoard <span className="sr-only">(current)</span></a>
-        <a className="nav-item nav-link" href="#" onClick={this.handleAdd}>Add Account</a>
-        <a className="nav-item nav-link" href="#"  onClick={(e) => handleClick(e)}>Get Accounts</a>
-        </div>
-        </div>
-        </nav>
-    );
-    }
-});
+
 
 var EditForm = React.createClass({
 
@@ -89,19 +96,6 @@ var EditForm = React.createClass({
             firstName: this.props.employee.firstName,
             surname: this.props.employee.surname,
             accountNumber: this.props.employee.accountNumber
-        }
-    },
-
-    updateState: function(){
-      this.state.firstName = this.props.employee.firstName;
-      this.state.surname = this.props.employee.surname;
-      this.state.accountNumber = this.props.employee.accountNumber
-    },
-
-    reRenderParent: function() {
-        console.log("render props name : " + this.props.employee.firstName);
-        if (typeof this.props.onClick === 'function') {
-            this.props.onClick(this.props.employee.firstName, this.props.employee.surname, this.props.employee.accountNumber);
         }
     },
 
@@ -139,7 +133,7 @@ var EditForm = React.createClass({
         if(typeof this.props.employee.id !== "undefined") data.id = this.props.employee.id;
 
         var jsonData = JSON.stringify(data);
-        console.log(jsonData);
+
         // Submit form via jQuery/AJAX
 
         var settings = {
@@ -160,7 +154,6 @@ var EditForm = React.createClass({
             .done(function(data) {
             })
             .fail(function(jqXhr) {
-                alert(this.url);
                 console.log("data : " + data );
                 console.log('failed to register');
             });
@@ -285,25 +278,12 @@ var AddForm = React.createClass({
     }
 });
 
-var accountsTable = React.createClass({
-    render: function(){
-        return(
-            <tr>
-            <td>{this.props.employee.name}</td>
-        <td>{this.props.employee.age}</td>
-        <td>{this.props.employee.years}</td>
-        </tr>);
-
-    }
-});
-
 
 var Employee = React.createClass({
 
     getInitialState: function() {
         return {display: true };
     },
-
 
     handleDelete() {
         this.setState({ delete: true });
@@ -319,7 +299,7 @@ var Employee = React.createClass({
             },
             "processData": false,
             success: function(result) {
-                // self.setState({employees: data._embedded.employees});
+
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 toastr.error(xhr.responseJSON.message);
@@ -329,16 +309,12 @@ var Employee = React.createClass({
 
     },
     reRender: function(firstName , surname, accountNumber){
-        console.log("reRender called");
-        console.log(firstName);
         this.props.employee.surname = surname;
         this.props.employee.firstName = firstName;
         this.props.employee.accountNumber = accountNumber;
-        console.log("firstname : "+ this.props.employee.firstName);
         this.forceUpdate();
     },
     render: function() {
-        console.log("rendering - -- - - - employee table-----");
         if(!this.state.delete){
             return (
                     <tr >
@@ -384,33 +360,6 @@ var EmployeeTable = React.createClass({
 
 });
 
-var Body = React.createClass({
-
-
-
-    render:  function(){
-        return (
-            <div id="body">
-                <NavBar />
-                <AddForm />
-            </div>);
-    }
-})
-
-
-ReactDOM.render(
-//<EmployeeTable employees={EMPLOYEES} />, document.getElementById('root')
-<Body/>, document.getElementById('root')
-
-);
-
-function handleClick(e){
-    e.preventDefault();
-    ReactDOM.render(
-    <App />, document.getElementById("main")
-);
-};
-
 var App = React.createClass({
 
     loadEmployeesFromServer: function () {
@@ -444,4 +393,20 @@ var App = React.createClass({
         return ( <EmployeeTable employees={this.state.employees} handler = {this.handler}/> );
     }
 });
+
+var Body = React.createClass({
+
+    render:  function(){
+        return (
+            <div id="body">
+                <NavBar />
+                <AddForm />
+            </div>);
+    }
+});
+
+ReactDOM.render(
+    <Body/>, document.getElementById('root')
+);
+
 

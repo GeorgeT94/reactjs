@@ -1,4 +1,4 @@
-package web.app.accounts;
+package web.app.accounts.Database;
 
 import org.springframework.data.repository.CrudRepository;
 
