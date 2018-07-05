@@ -185,21 +185,21 @@ var EditForm = React.createClass({
 });
 
 var FormErrors = React.createClass({
-   render: function({formErrors}){
-       return(
+    render: function({formErrors}){
+        return(
 
-       <div className='formErrors'>
-           {Object.keys(formErrors).map((fieldName, i) => {
-               if(formErrors[fieldName].length > 0){
-                   return (
-                       <p key={i}>{fieldName} {formErrors[fieldName]}</p>
-                   )
-               } else {
-                   return '';
-               }
-           })}
-       </div>);
-   }
+            <div className='formErrors'>
+                {Object.keys(formErrors).map((fieldName, i) => {
+                    if(formErrors[fieldName].length > 0){
+                        return (
+                            <p key={i}>{fieldName} {formErrors[fieldName]}</p>
+                        )
+                    } else {
+                        return '';
+                    }
+                })}
+            </div>);
+    }
 });
 
 var AddForm = React.createClass({
@@ -218,42 +218,6 @@ var AddForm = React.createClass({
         const value = e.target.value;
         this.setState({[name]: value},
             () => { this.validateField(name, value) });
-    },
-
-    validateField(fieldName, value) {
-        let fieldValidationErrors = this.state.formErrors;
-        let firstNameValid = this.state.firstNameValid;
-        let surnameValid = this.state.surnameValid;
-        let accountNumberValid = this.state.accountNumberValid;
-
-        switch(fieldName) {
-            case 'firstName':
-                firstNameValid = value.length >= 1;
-                fieldValidationErrors.firstName = firstNameValid ? '' : ' is empty';
-                break;
-            case 'surname':
-                surnameValid = value.length >= 1
-                fieldValidationErrors.surname = surnameValid ? '': ' is empty';
-                break;
-            case 'accountNumber':
-                accountNumberValid = !isNaN(value);
-                fieldValidationErrors.accountNumber = accountNumberValid ? '': ' is not an integer';
-                break;
-            default:
-                break;
-        }
-        this.setState({formErrors: fieldValidationErrors,
-            firstNameValid: firstNameValid,
-            surnameValid: surnameValid,
-            accountNumberValid: accountNumberValid
-        }, this.validateForm);
-    },
-
-    validateForm() {
-        this.setState({formValid: this.state.firstNameValid && this.state.surnameValid && this.state.accountNumberValid});
-    },
-    errorClass(error) {
-        return(error.length === 0 ? '' : 'has-error');
     },
 
     nameChange: function(e) {
@@ -288,7 +252,7 @@ var AddForm = React.createClass({
 
         var data = {
             "firstName": this.state.firstName,
-           "surname": this.state.surname,
+            "surname": this.state.surname,
             "accountNumber": this.state.accountNumber
         }
         var jsonData = JSON.stringify(data);
@@ -324,30 +288,24 @@ var AddForm = React.createClass({
     },
 
     render: function() {
-        console.log("firstname valid : "  + this.state.firstNameValid);
-        console.log("surname valid : "  + this.state.surnameValid);
-        console.log("accountnumber valid : "  + this.state.accountNumberValid);
-
-        console.log("form valid : "  + this.state.formValid);
-        console.log("form errors : " + this.state.formErrors.firstNameValid);
         return (
 
             <div id="main" className="container">
-            <form onSubmit={this.submit}>
-            <div className={`form-group ${this.errorClass(this.state.formErrors.fieldval)}`}>
-            <label for="exampleInputEmail1">First Name</label>
-        <input type="text" name="firstName" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" onChange={this.nameChange} val={this.state.firstName} />
-            </div>
-            <div className="form-group">
-            <label for="exampleInputPassword1">Surname</label>
-            <input type="text" name="surname" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" onChange={this.surnameChange}  val={this.state.surname} />
-            </div>
-            <div className="form-group">
-            <label for="exampleInputPassword1">Account Number</label>
-        <input type="text" name="accountNumber" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number" onChange={this.accountNumberChange} val={this.state.accountNumber} />
-            </div>
-            <button type="submit" className="btn btn-primary"   disabled={!this.state.formValid} >Add Account</button>
-            </form>
+                <form onSubmit={this.submit}>
+                    <div className={`form-group`}>
+                        <label for="exampleInputEmail1">First Name</label>
+                        <input type="text" name="firstName" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" onChange={this.nameChange} val={this.state.firstName} />
+                    </div>
+                    <div className="form-group">
+                        <label for="exampleInputPassword1">Surname</label>
+                        <input type="text" name="surname" className="form-control" id="exampleInputPassword1" placeholder="Enter Surname" onChange={this.surnameChange}  val={this.state.surname} />
+                    </div>
+                    <div className="form-group">
+                        <label for="exampleInputPassword1">Account Number</label>
+                        <input type="text" name="accountNumber" className="form-control" id="exampleInputPassword1" placeholder="Enter Account Number" onChange={this.accountNumberChange} val={this.state.accountNumber} />
+                    </div>
+                    <button type="submit" className="btn btn-primary"   >Add Account</button>
+                </form>
             </div>
         );
     }
@@ -377,7 +335,7 @@ var Employee = React.createClass({
 
             },
             error: function(xhr, ajaxOptions, thrownError) {
-                toastr.error(xhr.responseJSON.message);
+                // toastr.error(xhr.responseJSON.message);
             }
         });
 
@@ -392,14 +350,14 @@ var Employee = React.createClass({
     render: function() {
         if(!this.state.delete){
             return (
-                    <tr >
-                        <td>{this.props.employee.firstName}</td>
-                        <td>{this.props.employee.surname}</td>
-                        <td>{this.props.employee.accountNumber}</td>
-                        <td></td>
-                        <td><EditModal employee={this.props.employee} onClick={this.reRender}/></td>
-                        <td><button className="btn btn-info btn-danger" onClick={this.handleDelete}>Delete</button></td>
-                    </tr>)
+                <tr >
+                    <td>{this.props.employee.firstName}</td>
+                    <td>{this.props.employee.surname}</td>
+                    <td>{this.props.employee.accountNumber}</td>
+                    <td></td>
+                    <td><EditModal employee={this.props.employee} onClick={this.reRender}/></td>
+                    <td><button className="btn btn-info btn-danger" onClick={this.handleDelete}>Delete</button></td>
+                </tr>)
 
         }else{
             return null;
@@ -420,16 +378,16 @@ var EmployeeTable = React.createClass({
         return (
 
             <div className="container">
-            <table className="table table-striped">
-            <thead>
-            <tr>
-            <th>First Name</th>
-            <th>Surname</th>
-            <th>Account Number</th>
-            </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-            </table>
+                <table className="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Surname</th>
+                        <th>Account Number</th>
+                    </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
             </div>);
     },
 
